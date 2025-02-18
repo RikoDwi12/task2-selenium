@@ -12,139 +12,126 @@ import com.apiautomation.model.getAllResponse;
 import com.apiautomation.model.getResponseById;
 
 import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
 public class validationGet {
-    @Test
-    public void GetProductById() {
-        RestAssured.baseURI = "https://api.restful-api.dev";
+        @Test
+        public void GetProductById() {
+                getResponseById getResponseById;
+                RestAssured.baseURI = "https://api.restful-api.dev";
 
-        RequestSpecification requestSpecification = RestAssured.given();
+                RequestSpecification requestSpecification = RestAssured.given();
 
-        Response response = requestSpecification
-                .log()
-                .all()
-                .pathParam("idProduct", 7)
-                .when()
-                .get("/objects/{idProduct}");
+                Response response = requestSpecification
+                                .log()
+                                .all()
+                                .pathParam("idProduct", 7)
+                                .when()
+                                .get("/objects/{idProduct}");
 
-        System.out.println("Response by ID: " + response.asPrettyString());
-        System.out.println("Response Status Code: " + response.getStatusCode());
+                System.out.println("Response by ID: " + response.asPrettyString());
+                System.out.println("Response Status Code: " + response.getStatusCode());
 
-        // Pastikan response tidak null
-        Assert.assertNotNull(response, "Response is null!");
+                // Pastikan response tidak null
+                Assert.assertNotNull(response, "Response is null!");
 
-        // Parsing JSON ke POJO
-        getResponseById responseObject = response.as(getResponseById.class);
+                JsonPath jsonPath = response.jsonPath();
+                getResponseById = jsonPath.getObject("", getResponseById.class);
 
-        // Pastikan responseObject tidak null sebelum mengakses propertinya
-        Assert.assertNotNull(responseObject, "Response object is null!");
-        Assert.assertNotNull(responseObject.dataItem, "DataItem is null!");
+                // Validasi ID dan Nama
+                Assert.assertNotNull(getResponseById, "getResponseById is null!");
+                Assert.assertEquals(getResponseById.id, "7", "ID tidak sesuai!");
+                Assert.assertEquals(getResponseById.name, "Apple MacBook Pro 16", "Nama produk tidak sesuai!");
 
-        // Validasi data dari API response
-        Assert.assertEquals(responseObject.name, "Apple MacBook Pro 16");
-        Assert.assertEquals(responseObject.dataItem.year, 2019);
-        Assert.assertEquals(responseObject.dataItem.price, 1849.99, 0.01);
-        Assert.assertEquals(responseObject.dataItem.cpuModel, "Intel Core i9");
-        Assert.assertEquals(responseObject.dataItem.hardDiskSize, "1 TB");
-    }
+                // Validasi Data Item
+                Assert.assertNotNull(getResponseById.dataItem, "Data item is null!");
+                Assert.assertEquals(getResponseById.dataItem.year, 2019, "Tahun tidak sesuai!");
+                Assert.assertEquals(getResponseById.dataItem.price, 1849.99, "Harga tidak sesuai!");
+                Assert.assertEquals(getResponseById.dataItem.cpuModel, "Intel Core i9", "Model CPU tidak sesuai!");
+                Assert.assertEquals(getResponseById.dataItem.hardDiskSize, "1 TB", "Ukuran hard disk tidak sesuai!");
 
-    // TEST GET ALL
-    @Test
-    public void getAllObject() {
-        RestAssured.baseURI = "https://api.restful-api.dev";
-        RequestSpecification requestSpecification = RestAssured.given();
-
-        Response responseGetAll = requestSpecification
-                .log()
-                .all()
-                .when()
-                .get("objects");
-
-        System.out.println("Hasilnya adalah " + responseGetAll.asPrettyString());
-        System.out.println("Response Status Code: " + responseGetAll.getStatusCode());
-
-        Assert.assertEquals(responseGetAll.getStatusCode(), 200, "Status code tidak sesuai!");
-
-        List<getAllResponse> responseObjects = Arrays.asList(responseGetAll.as(getAllResponse[].class));
-
-        Assert.assertFalse(responseObjects.isEmpty(), "Response list is empty!");
-
-        for (getAllResponse obj : responseObjects) {
-            System.out.println("Memeriksa objek dengan ID: " + obj.id);
-
-            // Pastikan id dan name tidak null
-            Assert.assertNotNull(obj.id, "ID tidak boleh null!");
-            Assert.assertNotNull(obj.name, "Nama tidak boleh null!");
-
-            // Jika `data` tidak null, validasi isi `data`
-            if (obj.data != null) {
-                for (Map.Entry<String, Object> entry : obj.data.entrySet()) {
-                    System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
-                    Assert.assertNotNull(entry.getValue(), "Value untuk key " + entry.getKey() + " tidak boleh null!");
-                }
-            }
+                // Validasi status code (optional)
+                Assert.assertEquals(response.getStatusCode(), 200, "Status Code tidak sesuai!");
         }
-    }
 
-    // TEST GET BY QUERY PARAMs
-    @Test
-    public void getQueryParam() {
-        RestAssured.baseURI = "https://api.restful-api.dev";
+        // TEST GET ALL
+        @Test
+        public void getAllObject() {
+                RestAssured.baseURI = "https://api.restful-api.dev";
+                RequestSpecification requestSpecification = RestAssured.given();
 
-        RequestSpecification requestSpecification = RestAssured.given();
+                Response responseGetAll = requestSpecification
+                                .log()
+                                .all()
+                                .when()
+                                .get("objects");
 
-        // Multiple IDs passed as query parameters
-        Response responseGetQueryParam = requestSpecification
-                .log()
-                .all()
-                .queryParam("id", 3)
-                .queryParam("id", 5)
-                .queryParam("id", 10)
-                .when()
-                .get("objects");
+                System.out.println("Hasilnya adalah " + responseGetAll.asPrettyString());
+                System.out.println("Response Status Code: " + responseGetAll.getStatusCode());
 
-        System.out.println("Response: " + responseGetQueryParam.asPrettyString());
-        System.out.println("Response Status Code: " + responseGetQueryParam.getStatusCode());
+                Assert.assertEquals(responseGetAll.getStatusCode(), 200, "Status code tidak sesuai!");
 
-        Assert.assertEquals(responseGetQueryParam.getStatusCode(), 200);
+                List<getAllResponse> responseObjects = Arrays.asList(responseGetAll.as(getAllResponse[].class));
 
-        // Parse response to POJO
-        GetResponseQuery[] responseObjects = responseGetQueryParam.as(GetResponseQuery[].class);
+                Assert.assertFalse(responseObjects.isEmpty(), "Response list is empty!");
 
-        // Assert that response is not null
-        Assert.assertNotNull(responseObjects, "Response should not be null!");
+                for (getAllResponse obj : responseObjects) {
+                        System.out.println("Memeriksa objek dengan ID: " + obj.id);
 
-        // Find the object with ID "3"
-        GetResponseQuery objectWithId3 = Arrays.stream(responseObjects)
-                .filter(obj -> obj.getId().equals("3"))
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("Object with ID 3 not found"));
+                        // Pastikan id dan name tidak null
+                        Assert.assertNotNull(obj.id, "ID tidak boleh null!");
+                        Assert.assertNotNull(obj.name, "Nama tidak boleh null!");
 
-        // Assert the object with ID 3 is found and has the correct name
-        Assert.assertEquals(objectWithId3.getId(), "3", "First ID should be 3");
-        Assert.assertEquals(objectWithId3.getName(), "Apple iPhone 12 Pro Max", "Name mismatch");
+                        // Jika `data` tidak null, validasi isi `data`
+                        if (obj.data != null) {
+                                for (Map.Entry<String, Object> entry : obj.data.entrySet()) {
+                                        System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
+                                        Assert.assertNotNull(entry.getValue(),
+                                                        "Value untuk key " + entry.getKey() + " tidak boleh null!");
+                                }
+                        }
+                }
+        }
 
-        Assert.assertTrue(objectWithId3.getDataItem().containsKey("color"),
-                "Color property should be present in object with ID 3");
+        // TEST GET BY QUERY PARAMs
+        @Test
+        public void getQueryParam() {
+                RestAssured.baseURI = "https://api.restful-api.dev";
 
-        // object
-        GetResponseQuery objectWithId5 = Arrays.stream(responseObjects)
-                .filter(obj -> obj.getId().equals("5"))
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("Object with ID 5 not found"));
+                RequestSpecification requestSpecification = RestAssured.given();
 
-        Assert.assertTrue(objectWithId5.getDataItem().containsKey("price"),
-                "Price property should be present in object with ID 5");
+                Response responseGetQueryParam = requestSpecification
+                                .log()
+                                .all()
+                                .queryParam("id", 3)
+                                .queryParam("id", 5)
+                                .queryParam("id", 10)
+                                .when()
+                                .get("objects");
 
-        GetResponseQuery objectWithId10 = Arrays.stream(responseObjects)
-                .filter(obj -> obj.getId().equals("10"))
-                .findFirst()
-                .orElseThrow(() -> new AssertionError("Object with ID 10 not found"));
+                System.out.println("Response: " + responseGetQueryParam.asPrettyString());
+                System.out.println("Response Status Code: " + responseGetQueryParam.getStatusCode());
 
-        Assert.assertTrue(objectWithId10.getDataItem().containsKey("Capacity"),
-                "Capacity property should be present in object with ID 10");
-    }
+                Assert.assertEquals(responseGetQueryParam.getStatusCode(), 200);
+
+                GetResponseQuery[] getResponseQuery = responseGetQueryParam.as(GetResponseQuery[].class);
+
+                Assert.assertNotNull(getResponseQuery);
+                Assert.assertTrue(getResponseQuery.length > 0);
+
+                Assert.assertEquals("Apple iPhone 12 Pro Max", getResponseQuery[0].getName());
+
+                Assert.assertTrue(getResponseQuery[1].getDataItem().containsKey("price"));
+                Assert.assertEquals(689.99, getResponseQuery[1].getDataItem().get("price"));
+
+                Assert.assertTrue(getResponseQuery[2].getDataItem().containsKey("Capacity"));
+                Assert.assertEquals("64 GB", getResponseQuery[2].getDataItem().get("Capacity"));
+
+                Assert.assertEquals("3", getResponseQuery[0].getId());
+                Assert.assertEquals("5", getResponseQuery[1].getId());
+                Assert.assertEquals("10", getResponseQuery[2].getId());
+        }
 
 }

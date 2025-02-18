@@ -1,20 +1,29 @@
 package com.apiautomation.model;
 
 import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class GetResponseQuery {
     @JsonProperty("id")
-    public String id;
+    private String id; // ID is returned as a String in the response
 
     @JsonProperty("name")
-    public String name;
+    private String name;
 
     @JsonProperty("data")
-    public Map<String, Object> dataItem;
+    private Map<String, Object> dataItem; // A map to handle different keys and values in "data"
 
-    // Getter dan Setter jika diperlukan
+    // Constructor
+    public GetResponseQuery() {
+    }
+
+    public GetResponseQuery(String id, String name, Map<String, Object> dataItem) {
+        this.id = id;
+        this.name = name;
+        this.dataItem = dataItem;
+    }
+
+    // Getter and Setter methods
     public String getId() {
         return id;
     }
