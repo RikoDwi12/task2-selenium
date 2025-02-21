@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import apiengine.Endpoints;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -28,23 +29,13 @@ public class StepDefinitionImpl {
     String json;
     int idProduct;
     getResponseById getResponseById;
+    Endpoints endpoints;
 
 @Given("A list of products are available")
     public void getAllProducts(){
-        //Implementation
-        System.out.println("getAllProducts");
-        RestAssured.baseURI = "https://api.restful-api.dev";
-        RequestSpecification requestSpecification = RestAssured
-                                                    .given();
-
-        Response responseGet = requestSpecification
-                        .log()
-                        .all()
-                        .when()
-                        .get("objects");
-
-        System.out.println("reponse" + responseGet.asPrettyString());
-        System.out.println("status code" + responseGet.getStatusCode());
+        //Implementation Refactor code to use Endpoints class
+        endpoints = new Endpoints();
+        System.out.println("endpoints" + endpoints.GetAllObject("objects").asString());
     }
     
 @When("I add new products to etalase")
