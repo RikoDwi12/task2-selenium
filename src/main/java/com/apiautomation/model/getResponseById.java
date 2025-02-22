@@ -29,7 +29,7 @@ public class getResponseById {
         public int year;
 
         @JsonProperty("price")
-        public Double price; // Ubah ke Double
+        public Double price;
 
         @JsonProperty("CPU model")
         public String cpuModel;

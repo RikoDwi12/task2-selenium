@@ -1,23 +1,52 @@
 package apiengine;
 
+import com.apiautomation.constants.Constants;
+
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
 public class Endpoints {
     RequestSpecification requestSpecification;
+    Constants constants;
 
-    public Response GetAllObject(String path) { 
-    RestAssured.baseURI = "https://api.restful-api.dev";
-        RequestSpecification requestSpecification = RestAssured
-                                                    .given();
+    public Endpoints() {
+        RestAssured.baseURI = Constants.BASE_URL;
+        requestSpecification = RestAssured
+                .given()
+                .log()
+                .all();
+    }
+
+    public Response getAllProducts(String path) {
 
         Response responseGet = requestSpecification
-                        .log()
-                        .all()
-                        .when()
-                        .get(path);
+                .when()
+                .get(path);
 
         return responseGet;
+    }
+
+    public Response addNewProduct(String path, String json) {
+
+        Response responsePost = requestSpecification
+                .pathParam("path", "objects")
+                .body(json)
+                .contentType("application/json")
+                .when()
+                .post("{path}");
+
+        return responsePost;
+    }
+
+    public Response GetById(String path, int idProduct) {
+
+        Response responseGetById = requestSpecification
+                .pathParam("path", path)
+                .pathParam("idProduct", idProduct)
+                .when()
+                .get("/{path}/{idProduct}");
+
+        return responseGetById;
     }
 }
