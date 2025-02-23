@@ -39,6 +39,17 @@ public class Endpoints {
         return responsePost;
     }
 
+    public Response addNewProudctMap(String path, String json) {
+        Response response = requestSpecification
+                .pathParam("path", "objects")
+                .body(json)
+                .contentType("application/json")
+                .when()
+                .post("{path}");
+
+        return response;
+    }
+
     public Response GetById(String path, int idProduct) {
 
         Response responseGetById = requestSpecification

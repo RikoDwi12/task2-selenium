@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 
 import com.apiautomation.model.PutResponse;
 
+import apiengine.Endpoints;
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
@@ -15,6 +16,7 @@ public class validationPut {
     public void updateProduct() {
 
         PutResponse putResponse;
+        Endpoints endpoints;
 
         String body = "{"
                 + "\"name\": \"TestingManualPut\","
